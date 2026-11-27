@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Journal d'accès – CliniCare{% endblock %}
+{% block content %}
+<h1>Journal d'accès aux dossiers</h1>
+<div class="card table-wrap">{% if logs %}<table><tr><th>Date</th><th>Utilisateur</th><th>Rôle</th><th>Patient</th><th>Action</th></tr>
+{% for l in logs %}<tr><td>{{ l.date|dt }}</td><td>{{ l.user.nom }}</td><td>{{ l.user.role_name }}</td><td>{{ l.patient.nom_complet }} ({{ l.patient.numero_dossier }})</td><td>{{ l.action }}</td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Aucun accès enregistré.</p>{% endif %}</div>
+{% endblock %}

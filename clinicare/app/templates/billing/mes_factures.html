@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Mes factures – CliniCare{% endblock %}
+{% block content %}
+<h1>Mes factures</h1>
+<div class="card table-wrap">{% if factures %}<table><tr><th>N°</th><th>Date</th><th>Total</th><th>Solde</th><th>Statut</th><th></th></tr>
+{% for f in factures %}<tr><td>F-{{ '%05d' % f.id }}</td><td>{{ f.date_emission|dt('%d/%m/%Y') }}</td><td>{{ f.total|money }}</td><td>{{ f.solde|money }}</td><td><span class="badge b-{{ f.statut }}">{{ f.statut }}</span></td><td><a class="btn alt sm" href="{{ url_for('billing.voir', fid=f.id) }}">Détail</a></td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Aucune facture.</p>{% endif %}</div>
+<h2>Pharmacie</h2>
+<div class="card table-wrap">{% if ventes %}<table><tr><th>Date</th><th>Total</th><th>Solde</th><th>Statut</th><th></th></tr>
+{% for v in ventes %}<tr><td>{{ v.date|dt('%d/%m/%Y') }}</td><td>{{ v.total|money }}</td><td>{{ v.solde|money }}</td><td><span class="badge b-{{ v.statut }}">{{ v.statut }}</span></td><td><a class="btn alt sm" href="{{ url_for('pharmacie.vente', vid=v.id) }}">Détail</a></td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Aucun achat en pharmacie.</p>{% endif %}</div>
+{% endblock %}

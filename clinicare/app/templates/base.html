@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}CliniCare{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+{% set role = current_user.role_name %}
+<div class="layout">
+  <nav class="side" aria-label="Navigation principale">
+    <a class="brand" href="{{ url_for('main.dashboard') }}">Clini<span>Care</span></a>
+    {% macro item(ep, label) %}<a class="nav {{ 'on' if request.endpoint == ep else '' }}" href="{{ url_for(ep, **kwargs) }}">{{ label }}</a>{% endmacro %}
+    {{ item('main.dashboard', 'Tableau de bord') }}
+    {% if role in ('Administrateur','Réceptionniste') %}
+      {{ item('patients.liste', 'Patients') }}
+      {{ item('rdv.liste', 'Rendez-vous') }}
+      {{ item('billing.liste', 'Facturation') }}
+    {% endif %}
+    {% if role == 'Administrateur' %}
+      {{ item('admin.utilisateurs', 'Utilisateurs') }}
+      {{ item('admin.referentiels', 'Spécialités et tarifs') }}
+      {{ item('pharmacie.index', 'Pharmacie') }}
+      {{ item('admin.rapports', 'Rapports') }}
+      {{ item('admin.journal', "Journal d'accès") }}
+    {% elif role == 'Médecin' %}
+      {{ item('consultations.agenda', 'Mon agenda') }}
+      {{ item('rdv.liste', 'Rendez-vous') }}
+    {% elif role == 'Pharmacien' %}
+      {{ item('pharmacie.index', 'Ordonnances et ventes') }}
+      {{ item('pharmacie.stock', 'Stock de médicaments') }}
+    {% elif role == 'Patient' %}
+      {{ item('rdv.nouveau', 'Prendre rendez-vous') }}
+      {{ item('rdv.liste', 'Mes rendez-vous') }}
+      {{ item('billing.mes_factures', 'Mes factures') }}
+      {% if current_user.patient %}{{ item('patients.fiche', 'Mon dossier', pid=current_user.patient.id) }}{% endif %}
+    {% endif %}
+    <div class="who">
+      <span>{{ current_user.nom }}<br><small>{{ role }}</small></span>
+      <form method="post" action="{{ url_for('auth.logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="alt sm" type="submit">Se déconnecter</button>
+      </form>
+    </div>
+  </nav>
+  <main>
+    {% include "_flash.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+  <div class="auth-wrap">
+    <aside class="auth-side">
+      <a class="auth-brand" href="{{ url_for('public.home') }}">Clini<b>Care</b></a>
+      <img src="{{ url_for('static', filename='img/consultation.jpg') }}" width="591" height="519" alt="">
+      <p>Prenez rendez-vous, retrouvez vos ordonnances et vos factures, sans file d'attente.</p>
+    </aside>
+    <div class="auth-main">
+      <a class="auth-home" href="{{ url_for('public.home') }}">&larr; Retour au site</a>
+      <div class="auth">
+        {% include "_flash.html" %}
+        {% block auth %}{% endblock %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Patients – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>Patients</h1><a class="btn" href="{{ url_for('patients.nouveau') }}">Nouveau patient</a></div>
+<form class="card row" method="get" role="search">
+  <label for="q" style="margin:0">Rechercher</label>
+  <input id="q" name="q" value="{{ q }}" placeholder="Nom, téléphone ou n° de dossier" style="flex:1;min-width:200px">
+  <button type="submit">Rechercher</button>
+</form>
+<div class="card table-wrap">
+{% if pag.items %}
+<table><tr><th>N° dossier</th><th>Nom</th><th>Naissance</th><th>Téléphone</th><th></th></tr>
+{% for p in pag.items %}<tr><td>{{ p.numero_dossier }}</td><td>{{ p.nom }} {{ p.prenom }}</td><td>{{ p.date_naissance|dt('%d/%m/%Y') }}</td><td>{{ p.telephone }}</td>
+<td class="row"><a class="btn alt sm" href="{{ url_for('patients.fiche', pid=p.id) }}">Ouvrir</a><a class="btn sm" href="{{ url_for('rdv.nouveau', patient_id=p.id) }}">Rendez-vous</a></td></tr>{% endfor %}
+</table>
+<div class="pager">
+  {% if pag.has_prev %}<a class="btn alt sm" href="{{ url_for('patients.liste', q=q, page=pag.prev_num) }}">Précédent</a>{% endif %}
+  <span class="muted">Page {{ pag.page }} sur {{ pag.pages }}</span>
+  {% if pag.has_next %}<a class="btn alt sm" href="{{ url_for('patients.liste', q=q, page=pag.next_num) }}">Suivant</a>{% endif %}
+</div>
+{% else %}<p class="muted">Aucun patient trouvé. <a href="{{ url_for('patients.nouveau') }}">Enregistrer un nouveau patient</a>.</p>{% endif %}
+</div>
+{% endblock %}

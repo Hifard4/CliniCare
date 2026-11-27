@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Facture PH-{{ '%05d' % v.id }} – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>Facture pharmacie PH-{{ '%05d' % v.id }}</h1><button class="alt noprint" onclick="window.print()">Imprimer</button></div>
+<div class="card"><dl class="kv"><dt>Patient</dt><dd>{{ v.patient.nom_complet }} ({{ v.patient.numero_dossier }})</dd><dt>Date</dt><dd>{{ v.date|dt }}</dd>
+<dt>Pharmacien</dt><dd>{{ v.pharmacien.nom }}</dd><dt>Statut</dt><dd><span class="badge b-{{ v.statut }}">{{ v.statut }}</span></dd></dl></div>
+<div class="card table-wrap"><table><tr><th>Médicament</th><th>Qté</th><th>Prix unitaire</th><th>Montant</th></tr>
+{% for l in v.lignes %}<tr><td>{{ l.medicament.nom }}{% if l.prescription %}<br><small class="muted">{{ l.prescription.posologie }} – {{ l.prescription.duree }}</small>{% endif %}</td><td>{{ l.quantite }}</td><td>{{ l.prix_unitaire|money }}</td><td>{{ (l.quantite * l.prix_unitaire)|money }}</td></tr>{% endfor %}
+<tr><td colspan="3"><b>Total</b></td><td class="total">{{ v.total|money }}</td></tr>
+<tr><td colspan="3">Déjà payé</td><td>{{ v.paye|money }}</td></tr>
+<tr><td colspan="3"><b>Solde</b></td><td><b>{{ v.solde|money }}</b></td></tr></table></div>
+<h2>Paiements</h2>
+<div class="card table-wrap">{% if v.paiements %}<table><tr><th>Date</th><th>Mode</th><th>Montant</th></tr>{% for p in v.paiements %}<tr><td>{{ p.date_paiement|dt }}</td><td>{{ p.mode }}</td><td>{{ p.montant|money }}</td></tr>{% endfor %}</table>{% else %}<p class="muted">Aucun paiement enregistré.</p>{% endif %}</div>
+{% if current_user.role_name == 'Pharmacien' and v.solde > 0 %}
+<form class="card noprint" method="post" style="max-width:480px"><h2 style="margin-top:0">Enregistrer un paiement</h2>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="m">Montant (FBu)</label><input id="m" name="montant" type="number" min="1" max="{{ v.solde|int }}" value="{{ v.solde|int }}" required>
+  <label for="mode">Mode de paiement</label><select id="mode" name="mode">{% for m in modes %}<option>{{ m }}</option>{% endfor %}</select>
+  <p><button type="submit">Enregistrer le paiement</button></p></form>
+{% endif %}
+{% endblock %}

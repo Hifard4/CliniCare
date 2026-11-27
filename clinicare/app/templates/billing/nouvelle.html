@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Nouvelle facture – CliniCare{% endblock %}
+{% block content %}
+<h1>Nouvelle facture</h1>
+<p>Patient : <b>{{ c.rendez_vous.patient.nom_complet }}</b> – consultation du {{ c.date_creation|dt }}</p>
+<form class="card table-wrap" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <table><tr><th>Acte</th><th>Prix unitaire</th><th style="width:120px">Quantité</th></tr>
+  {% for a in actes %}<tr><td><label for="q{{ a.id }}" style="margin:0;font-weight:500">{{ a.libelle }}</label></td><td>{{ a.prix|money }}</td><td><input id="q{{ a.id }}" name="qte_{{ a.id }}" type="number" min="0" value="{{ 1 if loop.first else 0 }}"></td></tr>{% endfor %}</table>
+  <p><button type="submit">Générer la facture</button> <a class="btn alt" href="{{ url_for('billing.liste') }}">Annuler</a></p>
+</form>
+{% endblock %}

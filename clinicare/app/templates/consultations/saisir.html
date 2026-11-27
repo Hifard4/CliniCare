@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Consultation – CliniCare{% endblock %}
+{% block content %}
+<h1>Consultation</h1>
+<div class="card"><dl class="kv"><dt>Patient</dt><dd><a href="{{ url_for('patients.fiche', pid=r.patient.id) }}">{{ r.patient.nom_complet }}</a>, {{ r.patient.age }} ans ({{ r.patient.numero_dossier }})</dd>
+<dt>Rendez-vous</dt><dd>{{ r.date_heure|dt }}</dd><dt>Motif</dt><dd>{{ r.motif or '–' }}</dd></dl></div>
+<form class="card" method="post" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="diag">Diagnostic (obligatoire)</label><textarea id="diag" name="diagnostic" required>{{ f.get('diagnostic','') }}</textarea>
+  <label for="notes">Notes</label><textarea id="notes" name="notes">{{ f.get('notes','') }}</textarea>
+  <h2>Prescriptions</h2>
+  <div id="pres">
+    {% set meds = f.getlist('medicament') or [''] %}{% set pos = f.getlist('posologie') %}{% set dur = f.getlist('duree') %}
+    {% for i in range(meds|length) %}
+    <div class="pres-row"><input name="medicament" placeholder="Médicament" aria-label="Médicament" value="{{ meds[i] }}"><input name="posologie" placeholder="Posologie (ex. 1 cp, 3 fois par jour)" aria-label="Posologie" value="{{ pos[i] if i < pos|length else '' }}"><input name="duree" placeholder="Durée (ex. 5 jours)" aria-label="Durée" value="{{ dur[i] if i < dur|length else '' }}"></div>
+    {% endfor %}
+  </div>
+  <p><button type="button" class="alt sm" id="add">Ajouter une prescription</button></p>
+  <p><button type="submit">Enregistrer la consultation</button> <a class="btn alt" href="{{ url_for('consultations.agenda') }}">Annuler</a></p>
+</form>
+<script>
+document.getElementById('add').addEventListener('click',function(){
+  var row=document.querySelector('#pres .pres-row').cloneNode(true);
+  row.querySelectorAll('input').forEach(function(i){i.value=''});
+  document.getElementById('pres').appendChild(row);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Modifier le rendez-vous – CliniCare{% endblock %}
+{% block content %}
+<h1>Modifier le rendez-vous</h1>
+<div class="card"><p>{{ r.patient.nom_complet }} avec Dr {{ r.medecin.user.nom }} – actuellement le <b>{{ r.date_heure|dt }}</b></p>
+<form method="get" class="row"><label for="dt" style="margin:0">Nouvelle date</label><input id="dt" name="date" type="date" value="{{ day }}" min="{{ now.strftime('%Y-%m-%d') }}" style="max-width:200px"><button class="alt" type="submit">Voir les créneaux</button></form></div>
+<form class="card" method="post" action="{{ url_for('rdv.modifier', rid=r.id, date=day) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reserver">
+  {% if slots %}<div class="slots">{% for s in slots %}<label><input type="radio" name="creneau" value="{{ s.strftime('%Y-%m-%dT%H:%M') }}" required><span>{{ s|dt('%H:%M') }}</span></label>{% endfor %}</div>
+  <label for="motif">Motif</label><input id="motif" name="motif" value="{{ r.motif or '' }}" maxlength="200">
+  <p><button type="submit">Enregistrer le nouveau créneau</button> <a class="btn alt" href="{{ url_for('rdv.liste') }}">Retour</a></p>
+  {% else %}<p class="muted">Aucun créneau libre à cette date.</p><a class="btn alt" href="{{ url_for('rdv.liste') }}">Retour</a>{% endif %}
+</form>
+{% endblock %}

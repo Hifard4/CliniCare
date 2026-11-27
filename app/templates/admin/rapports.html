@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Rapports – CliniCare{% endblock %}
+{% block content %}
+<h1>Rapports</h1>
+<form class="card row noprint" method="get"><label for="du" style="margin:0">Du</label><input id="du" type="date" name="du" value="{{ d1 }}" style="max-width:180px"><label for="au" style="margin:0">Au</label><input id="au" type="date" name="au" value="{{ d2 }}" style="max-width:180px"><button type="submit">Appliquer</button><button type="button" class="alt" onclick="window.print()">Exporter en PDF</button></form>
+<h2>Consultations par médecin</h2>
+<div class="card table-wrap">{% if par_medecin %}<table><tr><th>Médecin</th><th>Spécialité</th><th>Consultations</th></tr>{% for n, s, c in par_medecin %}<tr><td>Dr {{ n }}</td><td>{{ s }}</td><td>{{ c }}</td></tr>{% endfor %}</table>{% else %}<p class="muted">Aucune consultation sur cette période.</p>{% endif %}</div>
+<h2>Revenus encaissés (consultations) : {{ total|money }}</h2>
+<div class="card">{% if jours %}{% set mx = montants|max %}
+<div class="bars" role="img" aria-label="Revenus par jour">{% for j, m in zip_(jours, montants) %}<div style="height:{{ (m / mx * 100)|round|int }}%" data-t="{{ j }} : {{ m|money }}"></div>{% endfor %}</div>
+<div class="table-wrap"><table><tr><th>Jour</th><th>Encaissé</th></tr>{% for j, m in zip_(jours, montants) %}<tr><td>{{ j }}</td><td>{{ m|money }}</td></tr>{% endfor %}</table></div>
+{% else %}<p class="muted">Aucun paiement sur cette période.</p>{% endif %}</div>
+<h2>Revenus de la pharmacie : {{ pharma_total|money }}</h2>
+<p class="muted">Total encaissé sur la période : {{ (total + pharma_total)|money }}</p>
+{% endblock %}

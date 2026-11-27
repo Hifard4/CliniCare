@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord – CliniCare{% endblock %}
+{% block content %}
+<h1>Bonjour, {{ current_user.nom }}</h1>
+{% if current_user.role_name in ('Administrateur','Réceptionniste') %}
+  <div class="stats">
+    <div class="stat"><b>{{ today|length }}</b>Rendez-vous aujourd'hui</div>
+    <div class="stat"><b>{{ n_patients }}</b>Patients enregistrés</div>
+    <div class="stat"><b>{{ revenus|money }}</b>Encaissé ce mois-ci</div>
+    <div class="stat warn"><b>{{ a_facturer }}</b>Consultations à facturer</div>
+  </div>
+  <div class="row noprint" style="margin-bottom:24px">
+    <a class="btn" href="{{ url_for('patients.nouveau') }}">Nouveau patient</a>
+    <a class="btn alt" href="{{ url_for('rdv.nouveau') }}">Nouveau rendez-vous</a>
+    <a class="btn alt" href="{{ url_for('billing.liste') }}">Facturation</a>
+  </div>
+  <div class="card"><h2 style="margin-top:0">Rendez-vous du jour</h2>
+  {% if today %}<div class="table-wrap"><table><tr><th>Heure</th><th>Patient</th><th>Médecin</th><th>Statut</th></tr>
+    {% for r in today %}<tr><td>{{ r.date_heure|dt('%H:%M') }}</td><td><a href="{{ url_for('patients.fiche', pid=r.patient.id) }}">{{ r.patient.nom_complet }}</a></td><td>Dr {{ r.medecin.user.nom }}</td><td><span class="badge b-{{ r.statut }}">{{ r.statut }}</span></td></tr>{% endfor %}
+  </table></div>{% else %}<p class="muted">Aucun rendez-vous aujourd'hui.</p>{% endif %}</div>
+{% elif current_user.role_name == 'Médecin' %}
+  <div class="card"><h2 style="margin-top:0">Agenda du jour</h2>
+  {% if today %}<div class="table-wrap"><table><tr><th>Heure</th><th>Patient</th><th>Motif</th><th>Statut</th><th></th></tr>
+    {% for r in today %}<tr><td>{{ r.date_heure|dt('%H:%M') }}</td><td>{{ r.patient.nom_complet }}</td><td>{{ r.motif or '–' }}</td><td><span class="badge b-{{ r.statut }}">{{ r.statut }}</span></td>
+    <td><a class="btn sm" href="{{ url_for('consultations.saisir', rid=r.id) }}">{{ 'Voir' if r.statut=='Terminé' else 'Consulter' }}</a></td></tr>{% endfor %}
+  </table></div>{% else %}<p class="muted">Aucun rendez-vous aujourd'hui.</p>{% endif %}</div>
+{% elif current_user.role_name == 'Pharmacien' %}
+  <div class="stats">
+    <div class="stat warn"><b>{{ a_delivrer }}</b>Ordonnances à délivrer</div>
+    <div class="stat warn"><b>{{ stock_bas }}</b>Médicaments en stock bas</div>
+    <div class="stat"><b>{{ impayees }}</b>Factures pharmacie à solder</div>
+    <div class="stat"><b>{{ revenus|money }}</b>Encaissé ce mois-ci</div>
+  </div>
+  <div class="row noprint"><a class="btn" href="{{ url_for('pharmacie.index') }}">Ordonnances et ventes</a><a class="btn alt" href="{{ url_for('pharmacie.stock') }}">Gérer le stock</a></div>
+{% else %}
+  <div class="row noprint" style="margin-bottom:24px"><a class="btn" href="{{ url_for('rdv.nouveau') }}">Prendre rendez-vous</a></div>
+  <div class="card"><h2 style="margin-top:0">Mes prochains rendez-vous</h2>
+  {% if upcoming %}<div class="table-wrap"><table><tr><th>Date</th><th>Médecin</th><th>Spécialité</th></tr>
+    {% for r in upcoming %}<tr><td>{{ r.date_heure|dt }}</td><td>Dr {{ r.medecin.user.nom }}</td><td>{{ r.medecin.specialite.libelle }}</td></tr>{% endfor %}
+  </table></div>{% else %}<p class="muted">Aucun rendez-vous à venir. Réservez un créneau avec le bouton ci-dessus.</p>{% endif %}</div>
+{% endif %}
+{% endblock %}

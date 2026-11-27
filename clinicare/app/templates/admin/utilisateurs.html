@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Utilisateurs – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>Utilisateurs</h1><a class="btn" href="{{ url_for('admin.utilisateur_nouveau') }}">Nouveau compte du personnel</a></div>
+<div class="card table-wrap"><table><tr><th>Nom</th><th>E-mail</th><th>Rôle</th><th>État</th><th></th></tr>
+{% for u in users %}<tr><td>{{ u.nom }}{% if u.medecin %}<br><small class="muted">{{ u.medecin.specialite.libelle }}</small>{% endif %}</td><td>{{ u.email }}</td><td>{{ u.role_name }}</td>
+<td><span class="badge {{ 'b-Terminé' if u.actif else 'b-Annulé' }}">{{ 'Actif' if u.actif else 'Désactivé' }}</span></td>
+<td class="row"><a class="btn alt sm" href="{{ url_for('admin.utilisateur_modifier', uid=u.id) }}">Modifier</a>
+{% if u.id != current_user.id %}<form method="post" action="{{ url_for('admin.utilisateur_basculer', uid=u.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="{{ 'danger' if u.actif else 'alt' }} sm" type="submit">{{ 'Désactiver' if u.actif else 'Réactiver' }}</button></form>{% endif %}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Stock – CliniCare{% endblock %}
+{% block content %}
+<h1>Stock de médicaments</h1>
+<div class="card table-wrap"><table><tr><th>Médicament</th><th>Forme</th><th>Stock</th><th>Prix unitaire, seuil d'alerte, ajout de stock</th></tr>
+{% for m in meds %}<tr><td>{{ m.nom }}</td><td>{{ m.forme or '–' }}</td>
+<td><span class="badge {{ 'b-Annulé' if m.stock_bas else 'b-Terminé' }}">{{ m.stock }}</span></td>
+<td><form method="post" class="row"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="maj"><input type="hidden" name="id" value="{{ m.id }}">
+<input name="prix" type="number" min="0" value="{{ m.prix|int }}" aria-label="Prix de {{ m.nom }}" style="width:100px">
+<input name="seuil" type="number" min="0" value="{{ m.seuil }}" aria-label="Seuil d'alerte de {{ m.nom }}" style="width:80px">
+<input name="ajout" type="number" value="0" aria-label="Quantité à ajouter à {{ m.nom }}" style="width:90px">
+<button class="alt sm" type="submit">Enregistrer</button></form></td></tr>{% endfor %}</table>
+<p class="muted">Ajout : nombre positif pour une réception, négatif pour une correction. Le stock ne peut pas devenir négatif.</p></div>
+<form class="card" method="post" style="max-width:560px"><h2 style="margin-top:0">Nouveau médicament</h2>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="nouveau">
+  <label for="nom">Nom et dosage</label><input id="nom" name="nom" required>
+  <div class="grid2"><div><label for="forme">Forme</label><input id="forme" name="forme" placeholder="Comprimé, sirop…"></div>
+  <div><label for="prix">Prix unitaire (FBu)</label><input id="prix" name="prix" type="number" min="0" required></div>
+  <div><label for="st">Stock initial</label><input id="st" name="stock" type="number" min="0" value="0"></div>
+  <div><label for="se">Seuil d'alerte</label><input id="se" name="seuil" type="number" min="0" value="10"></div></div>
+  <p><button type="submit">Ajouter</button></p></form>
+{% endblock %}

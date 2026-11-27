@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Consultation – CliniCare{% endblock %}
+{% block content %}
+<h1>Consultation du {{ c.date_creation|dt }}</h1>
+<div class="card"><dl class="kv"><dt>Patient</dt><dd><a href="{{ url_for('patients.fiche', pid=r.patient.id) }}">{{ r.patient.nom_complet }}</a></dd>
+<dt>Diagnostic</dt><dd>{{ c.diagnostic }}</dd><dt>Notes</dt><dd>{{ c.notes or '–' }}</dd></dl></div>
+<h2>Prescriptions</h2>
+<div class="card table-wrap">{% if c.prescriptions %}<table><tr><th>Médicament</th><th>Posologie</th><th>Durée</th></tr>{% for p in c.prescriptions %}<tr><td>{{ p.medicament }}</td><td>{{ p.posologie }}</td><td>{{ p.duree }}</td></tr>{% endfor %}</table>{% else %}<p class="muted">Aucune prescription.</p>{% endif %}</div>
+<a class="btn alt" href="{{ url_for('consultations.agenda') }}">Retour à l'agenda</a>
+{% endblock %}

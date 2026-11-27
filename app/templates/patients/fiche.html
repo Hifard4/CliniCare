@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ p.nom_complet }} – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>{{ p.nom_complet }}</h1>
+{% if current_user.role_name in ('Administrateur','Réceptionniste') %}<a class="btn" href="{{ url_for('rdv.nouveau', patient_id=p.id) }}">Nouveau rendez-vous</a>{% endif %}</div>
+<div class="card"><dl class="kv">
+  <dt>N° de dossier</dt><dd>{{ p.numero_dossier }}</dd>
+  <dt>Naissance</dt><dd>{{ p.date_naissance|dt('%d/%m/%Y') }} ({{ p.age }} ans)</dd>
+  <dt>Sexe</dt><dd>{{ 'Féminin' if p.sexe=='F' else 'Masculin' }}</dd>
+  <dt>Téléphone</dt><dd>{{ p.telephone }}</dd>
+  <dt>Adresse</dt><dd>{{ p.adresse or '–' }}</dd>
+</dl></div>
+<h2>Historique</h2>
+<div class="card table-wrap">
+{% if rdvs %}<table><tr><th>Date</th><th>Médecin</th><th>Statut</th>{% if current_user.role_name != 'Réceptionniste' %}<th>Diagnostic et prescriptions</th>{% endif %}<th>Facture</th></tr>
+{% for r in rdvs %}<tr><td>{{ r.date_heure|dt }}</td><td>Dr {{ r.medecin.user.nom }}<br><small class="muted">{{ r.medecin.specialite.libelle }}</small></td>
+<td><span class="badge b-{{ r.statut }}">{{ r.statut }}</span></td>
+{% if current_user.role_name != 'Réceptionniste' %}<td>{% if r.consultation %}{{ r.consultation.diagnostic }}
+  {% if r.consultation.prescriptions %}<ul style="margin:6px 0 0;padding-left:18px">{% for x in r.consultation.prescriptions %}<li>{{ x.medicament }} – {{ x.posologie }} ({{ x.duree }})</li>{% endfor %}</ul>{% endif %}{% else %}–{% endif %}</td>{% endif %}
+<td>{% if r.consultation and r.consultation.facture %}{% set f = r.consultation.facture %}
+  {% if current_user.role_name != 'Médecin' %}<a href="{{ url_for('billing.voir', fid=f.id) }}">{{ f.total|money }}</a>{% else %}{{ f.total|money }}{% endif %} <span class="badge b-{{ f.statut }}">{{ f.statut }}</span>{% else %}–{% endif %}</td></tr>{% endfor %}
+</table>{% else %}<p class="muted">Aucun rendez-vous pour ce patient.</p>{% endif %}
+</div>
+{% endblock %}

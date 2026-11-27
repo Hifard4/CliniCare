@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Spécialités et tarifs – CliniCare{% endblock %}
+{% block content %}
+<h1>Spécialités et tarifs</h1>
+<div class="grid2" style="align-items:start">
+<div class="card"><h2 style="margin-top:0">Spécialités</h2>
+<ul>{% for s in specs %}<li>{{ s.libelle }}</li>{% endfor %}</ul>
+<form method="post" class="row"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="specialite">
+<label for="sl" class="muted" style="margin:0;font-weight:500">Nouvelle</label><input id="sl" name="libelle" style="flex:1;min-width:140px" required><button type="submit" class="sm">Ajouter</button></form></div>
+<div class="card"><h2 style="margin-top:0">Actes et tarifs</h2>
+<table>{% for a in actes %}<tr><td>{{ a.libelle }}</td><td><form method="post" class="row"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="acte_prix"><input type="hidden" name="id" value="{{ a.id }}"><input name="prix" type="number" min="0" value="{{ a.prix|int }}" aria-label="Prix de {{ a.libelle }}" style="width:110px"><button class="alt sm" type="submit">Mettre à jour</button></form></td></tr>{% endfor %}</table>
+<form method="post" style="margin-top:16px"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="acte">
+<label for="al">Nouvel acte</label><input id="al" name="libelle" required><label for="ap">Prix (FBu)</label><input id="ap" name="prix" type="number" min="0" required><p><button type="submit">Ajouter l'acte</button></p></form></div>
+</div>
+{% endblock %}

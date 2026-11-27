@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Mon agenda – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>Agenda du {{ d|dt('%d/%m/%Y') }}</h1>
+<div class="row"><a class="btn alt sm" href="{{ url_for('consultations.agenda', date=prev) }}">Jour précédent</a><a class="btn alt sm" href="{{ url_for('consultations.agenda') }}">Aujourd'hui</a><a class="btn alt sm" href="{{ url_for('consultations.agenda', date=nxt) }}">Jour suivant</a></div></div>
+<div class="card table-wrap">
+{% if rdvs %}<table><tr><th>Heure</th><th>Patient</th><th>Âge</th><th>Motif</th><th>Statut</th><th></th></tr>
+{% for r in rdvs %}<tr><td>{{ r.date_heure|dt('%H:%M') }}</td><td>{{ r.patient.nom_complet }}</td><td>{{ r.patient.age }} ans</td><td>{{ r.motif or '–' }}</td><td><span class="badge b-{{ r.statut }}">{{ r.statut }}</span></td>
+<td class="row"><a class="btn sm" href="{{ url_for('consultations.saisir', rid=r.id) }}">{{ 'Voir' if r.statut=='Terminé' else 'Consulter' }}</a><a class="btn alt sm" href="{{ url_for('patients.fiche', pid=r.patient.id) }}">Dossier</a></td></tr>{% endfor %}
+</table>{% else %}<p class="muted">Aucun rendez-vous ce jour.</p>{% endif %}
+</div>
+{% endblock %}

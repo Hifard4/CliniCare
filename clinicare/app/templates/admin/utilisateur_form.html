@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Compte – CliniCare{% endblock %}
+{% block content %}
+<h1>{{ 'Modifier le compte' if u else 'Nouveau compte du personnel' }}</h1>
+<form class="card" method="post" style="max-width:560px" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label for="nom">Nom complet</label><input id="nom" name="nom" value="{{ u.nom if u else f.get('nom','') }}" required>
+  <label for="email">Adresse e-mail</label><input id="email" name="email" type="email" value="{{ u.email if u else f.get('email','') }}" {{ 'readonly' if u }} required>
+  <label for="role">Rôle</label>
+  <select id="role" name="role" {{ 'disabled' if u and (u.role_name == 'Patient' or u.id == current_user.id) }}>{% for r in roles %}<option {{ 'selected' if (u.role_name if u else f.get('role')) == r }}>{{ r }}</option>{% endfor %}</select>
+  <label for="sp">Spécialité (médecins)</label>
+  <select id="sp" name="specialite_id"><option value="">–</option>{% for s in specs %}<option value="{{ s.id }}" {{ 'selected' if u and u.medecin and u.medecin.specialite_id == s.id }}>{{ s.libelle }}</option>{% endfor %}</select>
+  <label for="no">N° d'ordre (médecins)</label><input id="no" name="numero_ordre" value="{{ u.medecin.numero_ordre if u and u.medecin and u.medecin.numero_ordre else f.get('numero_ordre','') }}">
+  <label for="pw">{{ 'Nouveau mot de passe (laisser vide pour conserver)' if u else 'Mot de passe (8 caractères minimum)' }}</label><input id="pw" name="password" type="password" autocomplete="new-password" {{ 'required' if not u }}>
+  <p><button type="submit">Enregistrer</button> <a class="btn alt" href="{{ url_for('admin.utilisateurs') }}">Annuler</a></p>
+</form>
+{% endblock %}

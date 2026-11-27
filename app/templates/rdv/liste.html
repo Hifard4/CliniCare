@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Rendez-vous – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>Rendez-vous</h1>
+{% if current_user.role_name != 'Médecin' %}<a class="btn" href="{{ url_for('rdv.nouveau') }}">Nouveau rendez-vous</a>{% endif %}</div>
+<form class="card row" method="get"><label for="date" style="margin:0">Filtrer par date</label><input id="date" name="date" type="date" value="{{ d or '' }}" style="max-width:200px">
+<button class="alt" type="submit">Filtrer</button>{% if d %}<a href="{{ url_for('rdv.liste') }}">Tout afficher</a>{% endif %}</form>
+<div class="card table-wrap">
+{% if rdvs %}<table><tr><th>Date</th><th>Patient</th><th>Médecin</th><th>Motif</th><th>Statut</th><th></th></tr>
+{% for r in rdvs %}<tr><td>{{ r.date_heure|dt }}</td><td>{{ r.patient.nom_complet }}</td><td>Dr {{ r.medecin.user.nom }}<br><small class="muted">{{ r.medecin.specialite.libelle }}</small></td><td>{{ r.motif or '–' }}</td>
+<td><span class="badge b-{{ r.statut }}">{{ r.statut }}</span></td>
+<td class="row">{% if r.statut == 'Planifié' and can_manage(r) %}
+  <a class="btn alt sm" href="{{ url_for('rdv.modifier', rid=r.id) }}">Modifier</a>
+  <form method="post" action="{{ url_for('rdv.annuler', rid=r.id) }}" onsubmit="return confirm('Annuler ce rendez-vous ?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="danger sm" type="submit">Annuler</button></form>
+{% endif %}
+{% if current_user.role_name == 'Médecin' and r.statut != 'Annulé' %}<a class="btn sm" href="{{ url_for('consultations.saisir', rid=r.id) }}">{{ 'Voir' if r.statut == 'Terminé' else 'Consulter' }}</a>{% endif %}</td></tr>{% endfor %}
+</table>{% else %}<p class="muted">Aucun rendez-vous.</p>{% endif %}
+</div>
+{% endblock %}

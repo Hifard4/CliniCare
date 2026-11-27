@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Prendre rendez-vous – CliniCare{% endblock %}
+{% block content %}
+<h1>Prendre rendez-vous</h1>
+{% if role != 'Patient' and not patient %}
+  <div class="card"><p>Choisissez d'abord un patient.</p><a class="btn" href="{{ url_for('patients.liste') }}">Rechercher un patient</a></div>
+{% else %}
+<form class="card" method="get">
+  {% if role != 'Patient' %}<input type="hidden" name="patient_id" value="{{ patient.id }}"><p>Patient : <b>{{ patient.nom_complet }}</b> ({{ patient.numero_dossier }})</p>{% endif %}
+  <div class="grid2">
+    <div><label for="sp">Spécialité</label>
+      <select id="sp" name="specialite_id" onchange="this.form.medecin_id.value='';this.form.submit()"><option value="">Choisir</option>
+      {% for s in specialites %}<option value="{{ s.id }}" {{ 'selected' if s.id == spec_id }}>{{ s.libelle }}</option>{% endfor %}</select></div>
+    <div><label for="md">Médecin</label>
+      <select id="md" name="medecin_id" {{ 'disabled' if not medecins }}><option value="">Choisir</option>
+      {% for m in medecins %}<option value="{{ m.id }}" {{ 'selected' if m.id == med_id }}>Dr {{ m.user.nom }}</option>{% endfor %}</select></div>
+  </div>
+  <label for="dt">Date</label><input id="dt" name="date" type="date" min="{{ now.strftime('%Y-%m-%d') }}" value="{{ day or '' }}" style="max-width:220px">
+  <p><button type="submit">Voir les créneaux libres</button></p>
+</form>
+{% if med_id and day %}
+<form class="card" method="post" action="{{ url_for('rdv.nouveau', specialite_id=spec_id, medecin_id=med_id, date=day, patient_id=patient.id if patient else None) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="action" value="reserver">
+  <h2 style="margin-top:0">Créneaux du {{ day|dt('%d/%m/%Y') }}</h2>
+  {% if slots %}
+  <div class="slots" role="radiogroup" aria-label="Créneaux libres">
+    {% for s in slots %}<label><input type="radio" name="creneau" value="{{ s.strftime('%Y-%m-%dT%H:%M') }}" required><span>{{ s|dt('%H:%M') }}</span></label>{% endfor %}
+  </div>
+  <label for="motif">Motif (facultatif)</label><input id="motif" name="motif" maxlength="200">
+  <p><button type="submit">Confirmer le rendez-vous</button></p>
+  {% else %}<p class="muted">Aucun créneau libre ce jour-là. Essayez une autre date.</p>{% endif %}
+</form>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ clinic.name }}, clinique à {{ clinic.city }}{% endblock %}</title>
+<meta name="description" content="{% block desc %}Prenez rendez-vous en ligne avec les médecins de {{ clinic.name }}. Dossier médical numérique, ordonnances, pharmacie et facturation au même endroit.{% endblock %}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/public.css') }}">
+</head>
+<body class="pub">
+<div class="topbar"><div class="wrap topbar-in">
+  <span><a href="tel:{{ clinic.phone|replace(' ', '') }}">{{ clinic.phone }}</a> <span class="sep">|</span> <a href="mailto:{{ clinic.email }}">{{ clinic.email }}</a></span>
+  <span class="topbar-hours">{{ clinic.hours }}</span>
+</div></div>
+<header class="head"><div class="wrap head-in">
+  <a class="logo" href="{{ url_for('public.home') }}" aria-label="{{ clinic.name }}, accueil">
+    <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="6" fill="#1f5fae"/><path d="M14 8h6v6h6v6h-6v6h-6v-6H8v-6h6z" fill="#fff"/></svg>
+    <span>Clini<b>Care</b></span>
+  </a>
+  <button class="burger" id="burger" aria-expanded="false" aria-controls="mainnav">Menu</button>
+  <nav class="mainnav" id="mainnav" aria-label="Navigation principale">
+    <a href="{{ url_for('public.home') }}">Accueil</a>
+    <a href="{{ url_for('public.home') }}#services">Services</a>
+    <a href="{{ url_for('public.home') }}#medecins">Nos médecins</a>
+    <a href="{{ url_for('public.home') }}#contact">Contact</a>
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.dashboard') }}">Mon espace</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}">Se connecter</a>
+    {% endif %}
+    <a class="btn cta" href="{{ book_url() }}">Prendre rendez-vous</a>
+  </nav>
+</div></header>
+<main class="pubmain">{% block content %}{% endblock %}</main>
+<footer class="foot" id="contact"><div class="wrap foot-in">
+  <div><div class="foot-logo">Clini<b>Care</b></div><p>Soins de qualité, dossiers bien tenus et rendez-vous sans attente, à {{ clinic.city }}.</p></div>
+  <div><h2>Contact</h2><p>{{ clinic.address }}<br><a href="tel:{{ clinic.phone|replace(' ', '') }}">{{ clinic.phone }}</a><br><a href="mailto:{{ clinic.email }}">{{ clinic.email }}</a></p><p>{{ clinic.hours }}. Fermé le dimanche.</p></div>
+  <div><h2>Espace patient</h2><p><a href="{{ book_url() }}">Prendre rendez-vous</a><br><a href="{{ url_for('auth.login') }}">Se connecter</a><br><a href="{{ url_for('auth.register') }}">Créer un compte</a></p></div>
+</div><div class="wrap foot-bottom">© {{ now.year }} {{ clinic.name }}. Tous droits réservés.</div></footer>
+<script>
+var b=document.getElementById('burger'),n=document.getElementById('mainnav');
+b.addEventListener('click',function(){var o=n.classList.toggle('open');b.setAttribute('aria-expanded',o)});
+</script>
+</body>
+</html>

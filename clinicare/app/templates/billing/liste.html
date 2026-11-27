@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Facturation – CliniCare{% endblock %}
+{% block content %}
+<h1>Facturation</h1>
+<h2>Consultations à facturer</h2>
+<div class="card table-wrap">{% if a_facturer %}<table><tr><th>Date</th><th>Patient</th><th>Médecin</th><th></th></tr>
+{% for c in a_facturer %}<tr><td>{{ c.date_creation|dt }}</td><td>{{ c.rendez_vous.patient.nom_complet }}</td><td>Dr {{ c.rendez_vous.medecin.user.nom }}</td><td><a class="btn sm" href="{{ url_for('billing.nouvelle', cid=c.id) }}">Générer la facture</a></td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Toutes les consultations sont facturées.</p>{% endif %}</div>
+<h2>Factures</h2>
+<div class="card table-wrap">{% if factures %}<table><tr><th>N°</th><th>Date</th><th>Patient</th><th>Total</th><th>Solde</th><th>Statut</th><th></th></tr>
+{% for f in factures %}<tr><td>F-{{ '%05d' % f.id }}</td><td>{{ f.date_emission|dt('%d/%m/%Y') }}</td><td>{{ f.consultation.rendez_vous.patient.nom_complet }}</td><td>{{ f.total|money }}</td><td>{{ f.solde|money }}</td><td><span class="badge b-{{ f.statut }}">{{ f.statut }}</span></td><td><a class="btn alt sm" href="{{ url_for('billing.voir', fid=f.id) }}">Ouvrir</a></td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Aucune facture pour le moment.</p>{% endif %}</div>
+{% endblock %}

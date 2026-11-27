@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Délivrance – CliniCare{% endblock %}
+{% block content %}
+<h1>Délivrance de médicaments</h1>
+<div class="card"><dl class="kv"><dt>Patient</dt><dd>{{ patient.nom_complet }} ({{ patient.numero_dossier }}), {{ patient.age }} ans</dd>
+<dt>Médecin</dt><dd>Dr {{ c.rendez_vous.medecin.user.nom }} – consultation du {{ c.date_creation|dt }}</dd></dl></div>
+<form class="card table-wrap" method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <table><tr><th>Prescription</th><th>Médicament délivré</th><th style="width:110px">Quantité</th></tr>
+  {% for pr in c.prescriptions %}
+  <tr><td><b>{{ pr.medicament }}</b><br><small class="muted">{{ pr.posologie }} – {{ pr.duree }}</small></td>
+  <td><label for="med{{ pr.id }}" class="muted" style="margin:0;font-weight:500">Choisir dans le stock</label>
+    <select id="med{{ pr.id }}" name="med_{{ pr.id }}"><option value="">Non délivré</option>
+    {% for m in meds %}<option value="{{ m.id }}" {{ 'selected' if sel[pr.id] == m.id }} {{ 'disabled' if m.stock == 0 }}>{{ m.nom }} – {{ m.prix|money }} (stock : {{ m.stock }})</option>{% endfor %}</select></td>
+  <td><label for="q{{ pr.id }}" class="muted" style="margin:0;font-weight:500">Quantité</label><input id="q{{ pr.id }}" name="qte_{{ pr.id }}" type="number" min="0" value="{{ qte[pr.id] }}"></td></tr>{% endfor %}</table>
+  <p class="muted">Seuls les médicaments sélectionnés sont délivrés et facturés ; le stock est mis à jour automatiquement.</p>
+  <p><button type="submit">Délivrer et générer la facture</button> <a class="btn alt" href="{{ url_for('pharmacie.index') }}">Annuler</a></p>
+</form>
+{% endblock %}

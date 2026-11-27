@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Pharmacie – CliniCare{% endblock %}
+{% block content %}
+<div class="row between"><h1>Pharmacie</h1><a class="btn alt" href="{{ url_for('pharmacie.stock') }}">Stock de médicaments</a></div>
+{% if bas %}<div class="flash error" role="status">Stock bas : {% for m in bas %}{{ m.nom }} ({{ m.stock }}){{ ', ' if not loop.last }}{% endfor %}</div>{% endif %}
+<h2>Ordonnances à délivrer</h2>
+<div class="card table-wrap">{% if ordonnances %}<table><tr><th>Consultation</th><th>Patient</th><th>Médecin</th><th>Prescriptions</th><th></th></tr>
+{% for c in ordonnances %}<tr><td>{{ c.date_creation|dt }}</td><td>{{ c.rendez_vous.patient.nom_complet }}</td><td>Dr {{ c.rendez_vous.medecin.user.nom }}</td>
+<td>{% for p in c.prescriptions %}{{ p.medicament }}{{ ', ' if not loop.last }}{% endfor %}</td>
+<td>{% if current_user.role_name == 'Pharmacien' %}<a class="btn sm" href="{{ url_for('pharmacie.delivrer', cid=c.id) }}">Délivrer</a>{% endif %}</td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Aucune ordonnance en attente.</p>{% endif %}</div>
+<h2>Ventes récentes</h2>
+<div class="card table-wrap">{% if ventes %}<table><tr><th>N°</th><th>Date</th><th>Patient</th><th>Total</th><th>Solde</th><th>Statut</th><th></th></tr>
+{% for v in ventes %}<tr><td>PH-{{ '%05d' % v.id }}</td><td>{{ v.date|dt }}</td><td>{{ v.patient.nom_complet }}</td><td>{{ v.total|money }}</td><td>{{ v.solde|money }}</td><td><span class="badge b-{{ v.statut }}">{{ v.statut }}</span></td><td><a class="btn alt sm" href="{{ url_for('pharmacie.vente', vid=v.id) }}">Ouvrir</a></td></tr>{% endfor %}</table>
+{% else %}<p class="muted">Aucune vente pour le moment.</p>{% endif %}</div>
+{% endblock %}
