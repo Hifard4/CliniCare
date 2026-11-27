@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,9 +9,9 @@ def _db_url():
     url = os.environ.get("DATABASE_URL", "").strip()
     if not url:
         return "sqlite:///clinicare.db"
-    if url.startswith("postgres://"):
-        url = url.replace("postgres://", "postgresql://", 1)
-    return url
+    # Force le pilote psycopg2 (installé via requirements.txt), quelle que soit l'écriture de l'URL
+    # (postgres://, postgresql://, postgresql+psycopg://...) et la version de SQLAlchemy.
+    return re.sub(r"^postgres(ql)?(\+\w+)?://", "postgresql+psycopg2://", url)
 
 
 def _engine_options():
