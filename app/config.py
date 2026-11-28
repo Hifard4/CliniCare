@@ -7,6 +7,10 @@ load_dotenv()
 
 def _db_url():
     url = os.environ.get("DATABASE_URL", "").strip()
+    # Nettoie les erreurs de copier-coller courantes : guillemets, préfixe "DATABASE_URL=".
+    if url.upper().startswith("DATABASE_URL="):
+        url = url.split("=", 1)[1].strip()
+    url = url.strip("\"'").strip()
     if not url:
         return "sqlite:///clinicare.db"
     # Force le pilote psycopg2 (installé via requirements.txt), quelle que soit l'écriture de l'URL

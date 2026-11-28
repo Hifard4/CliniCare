@@ -13,6 +13,15 @@ def create_app(config=None):
     if config:
         app.config.update(config)
 
+    # Diagnostic : indique la cible de connexion SANS le mot de passe (visible dans les Runtime Logs).
+    try:
+        from sqlalchemy.engine import make_url
+        u = make_url(app.config["SQLALCHEMY_DATABASE_URI"])
+        app.logger.warning("DB target: driver=%s user=%s host=%s port=%s db=%s password_length=%s",
+                           u.drivername, u.username, u.host, u.port, u.database, len(u.password or ""))
+    except Exception as e:
+        app.logger.warning("DB target illisible: %s", e)
+
     db.init_app(app)
     csrf.init_app(app)
     bcrypt.init_app(app)
