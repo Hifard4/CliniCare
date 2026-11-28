@@ -1,0 +1,89 @@
+{% extends "site/base_public.html" %}
+{% block content %}
+
+<section class="hero"><div class="wrap hero-in">
+  <div class="hero-text">
+    <p class="eyebrow">Clinique {{ clinic.name }} à {{ clinic.city }}</p>
+    <h1>Prenez rendez-vous avec votre médecin, sans file d'attente.</h1>
+    <p class="lead">Choisissez votre spécialité, votre médecin et un créneau libre. La confirmation arrive tout de suite, et vous retrouvez ensuite votre dossier, vos ordonnances et vos factures en ligne.</p>
+    <div class="row hero-cta">
+      <a class="btn cta big" href="{{ book_url() }}">Prendre rendez-vous</a>
+      {% if not current_user.is_authenticated %}<a class="btn alt big" href="{{ url_for('auth.login') }}">J'ai déjà un compte</a>{% endif %}
+    </div>
+    <ul class="facts">
+      <li>Créneaux libres affichés en temps réel</li>
+      <li>Dossier médical confidentiel</li>
+      <li>Pharmacie et paiement sur place</li>
+    </ul>
+  </div>
+  <div class="hero-photo"><img src="{{ url_for('static', filename='img/consultation.jpg') }}" width="591" height="519" alt="Un médecin discute avec un patient pendant une consultation"></div>
+</div></section>
+
+<section class="sec" id="parcours"><div class="wrap split">
+  <div class="split-photo"><img src="{{ url_for('static', filename='img/soins.jpg') }}" width="532" height="532" loading="lazy" alt="Un soignant enfile des gants bleus avant un soin"></div>
+  <div>
+    <h2 class="sec-title">Un seul parcours, du rendez-vous à la pharmacie</h2>
+    <p>À la clinique, plus de registres papier ni de dossiers égarés. Tout ce qui concerne votre visite est enregistré au même endroit, et chaque personne n'accède qu'à ce dont elle a besoin.</p>
+    <ul class="checks">
+      <li><b>Dossier médical numérique.</b> Vos consultations et diagnostics sont conservés et consultables par vous et par votre médecin.</li>
+      <li><b>Ordonnance transmise.</b> Après la consultation, la pharmacie de la clinique délivre vos médicaments directement.</li>
+      <li><b>Factures détaillées.</b> Consultation et médicaments sont facturés séparément, avec le détail de chaque acte.</li>
+      <li><b>Paiement souple.</b> Vous pouvez régler en une fois ou en plusieurs fois, en espèces, mobile money, carte ou virement.</li>
+    </ul>
+  </div>
+</div></section>
+
+<section class="sec alt" id="services"><div class="wrap">
+  <h2 class="sec-title">Nos services</h2>
+  <p class="sec-sub">Ce que vous pouvez faire dès maintenant depuis votre espace patient.</p>
+  <div class="cards">
+    <article class="card-s"><h3>Consultations</h3><p>Médecine générale et consultations spécialisées sur rendez-vous, avec un médecin de votre choix.</p>
+      {% if specialites %}<p class="tags">{% for s in specialites %}<span>{{ s.libelle }}</span>{% endfor %}</p>{% endif %}</article>
+    <article class="card-s"><h3>Pharmacie</h3><p>Vos médicaments sont délivrés sur place à partir de l'ordonnance du médecin, avec une facture claire.</p></article>
+    <article class="card-s"><h3>Facturation</h3><p>Une facture par consultation, le total calculé automatiquement et le suivi des paiements partiels.</p></article>
+    <article class="card-s"><h3>Espace patient</h3><p>Historique de vos rendez-vous, annulation ou changement de créneau, et accès à vos factures.</p></article>
+  </div>
+</div></section>
+
+<section class="sec" id="etapes"><div class="wrap">
+  <h2 class="sec-title">Prendre rendez-vous en trois étapes</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><h3>Créez votre compte</h3><p>Quelques informations suffisent : nom, date de naissance, téléphone et e-mail. Votre numéro de dossier est généré automatiquement.</p></li>
+    <li><span class="n">2</span><h3>Choisissez un créneau</h3><p>Sélectionnez la spécialité, le médecin et la date. Seuls les créneaux réellement disponibles vous sont proposés.</p></li>
+    <li><span class="n">3</span><h3>Présentez-vous à l'heure</h3><p>Vous êtes reçu sans attendre. Ordonnance, pharmacie et paiement se font ensuite sur place.</p></li>
+  </ol>
+  <p class="center"><a class="btn cta big" href="{{ book_url() }}">Réserver mon créneau</a></p>
+</div></section>
+
+{% if medecins %}
+<section class="sec alt" id="medecins"><div class="wrap">
+  <h2 class="sec-title">Nos médecins</h2>
+  <p class="sec-sub">Choisissez directement le médecin que vous souhaitez consulter.</p>
+  <div class="docs">
+    {% for m in medecins %}
+    <article class="doc">
+      <div class="mono" aria-hidden="true">{{ m.user.nom.split()[0][0] }}{{ m.user.nom.split()[-1][0] if m.user.nom.split()|length > 1 else '' }}</div>
+      <h3>Dr {{ m.user.nom }}</h3><p class="muted">{{ m.specialite.libelle }}</p>
+      <a class="btn alt sm" href="{{ book_url(specialite_id=m.specialite_id, medecin_id=m.id) }}">Prendre rendez-vous</a>
+    </article>
+    {% endfor %}
+  </div>
+</div></section>
+{% endif %}
+
+<section class="sec"><div class="wrap trio">
+  <div><h3>Accès selon le profil</h3><p>Un patient ne voit que son dossier. Un médecin n'ouvre que les dossiers de ses patients.</p></div>
+  <div><h3>Consultations tracées</h3><p>Chaque ouverture de dossier est enregistrée dans un journal d'accès contrôlé par l'administration.</p></div>
+  <div><h3>Connexion sécurisée</h3><p>Mots de passe protégés, session qui expire après inactivité, formulaires protégés contre les falsifications.</p></div>
+</div></section>
+
+<section class="band"><div class="wrap band-in">
+  <img src="{{ url_for('static', filename='img/equipe.jpg') }}" width="678" height="452" loading="lazy" alt="Une médecin souriante, stéthoscope autour du cou">
+  <div>
+    <h2>Une équipe à votre écoute</h2>
+    <p>Une question avant de réserver ? Appelez-nous ou passez à la clinique, nous vous répondons du lundi au samedi.</p>
+    <p class="band-contact"><a href="tel:{{ clinic.phone|replace(' ', '') }}">{{ clinic.phone }}</a><br>{{ clinic.hours }}</p>
+    <a class="btn cta big" href="{{ book_url() }}">Prendre rendez-vous en ligne</a>
+  </div>
+</div></section>
+{% endblock %}

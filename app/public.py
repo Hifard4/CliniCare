@@ -9,4 +9,4 @@ def home():
     medecins = (Medecin.query.join(Medecin.user).filter_by(actif=True)
                 .order_by(Medecin.id).limit(8).all())
     specialites = Specialite.query.order_by(Specialite.libelle).all()
-    return render_template("public/home.html", medecins=medecins, specialites=specialites)
+    return render_template("site/home.html", medecins=medecins, specialites=specialites)
